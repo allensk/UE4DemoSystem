@@ -104,6 +104,11 @@ public:
 		return this->ID == Index.ID && this->Level == Index.Level;
 	}
 
+	bool IsValid() const
+	{
+		return ID != 0;
+	}
+
 	FORCEINLINE friend uint32 GetTypeHash(const FCNObjectIndex& Index) 
 	{ 
 		uint32 Hash = 0;
@@ -211,9 +216,32 @@ struct FCNItemInfo
 	GENERATED_USTRUCT_BODY()
 public:
 
+	bool operator<(const FCNItemInfo& Info) const {
+		return this->Index < Info.Index;
+	}
+
+	bool operator==(const FCNItemInfo& Info) const
+	{
+		return this->Index == Info.Index;
+	}
+
 	UPROPERTY(BlueprintReadWrite)
 	FCNObjectIndex Index;
 
 	UPROPERTY(BlueprintReadWrite)
 	int Amount{ 1 };
+};
+
+////////////////////////////////////////////////////////////
+
+USTRUCT(BlueprintType)
+struct FCNConsumableEffect
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	FCNConsumableEffect() = default;
+
+	UPROPERTY(BlueprintReadOnly)
+	int HealthRecoveryPoint{ 0 };
 };

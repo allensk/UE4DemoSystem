@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameStateBase.h"
+#include "GameFramework/GameState.h"
 #include "CNGameState.generated.h"
 
 class FCNItemStore;
@@ -14,13 +14,13 @@ class ACNObjectFactory;
  * 
  */
 UCLASS()
-class CNBASE_API ACNGameState : public AGameStateBase
+class CNBASE_API ACNGameState : public AGameState
 {
 	GENERATED_BODY()
 
 public:
 	ACNGameState();
-	~ACNGameState();
+	virtual ~ACNGameState() override;
 
 	ACNObjectFactory* GetObjectFactory() { return ObjectFactory; }
 
@@ -31,6 +31,6 @@ protected:
 	*/
 	virtual void PreInitializeComponents() override;
 
-	// UPROPERTY(BlueprintReadOnly, Category = "CNHelp")
+	UPROPERTY()
 	ACNObjectFactory* ObjectFactory;
 };

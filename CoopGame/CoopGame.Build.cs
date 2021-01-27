@@ -8,9 +8,18 @@ public class CoopGame : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem" });
+		PublicDependencyModuleNames.AddRange(new string[] {
+            "Core",
+            "CoreUObject",
+            "Engine",
+            "InputCore"
+        });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "CNBase" });
+        PrivateDependencyModuleNames.AddRange(new string[] {
+            "CNBase",
+            "NavigationSystem",
+            "AIModule"
+        });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

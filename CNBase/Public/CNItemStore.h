@@ -9,6 +9,7 @@
 #include "CNDBConnection.h"
 
 struct FCNItemBase;
+struct FCNConsumableEffect;
 class FSQLiteDatabase;
 
 /**
@@ -25,9 +26,14 @@ public:
 	bool LoadAllData();
 
 	/**
-	 * @Return base attribute name
+	 * @Return indexed name
 	 */
 	FString FindName(int ID) const;
+
+	/**
+	 * @Return Name meaningful to player
+	 */
+	FString FindDisplayName(int ID) const;
 
 	/**
 	 * @Return base attribute description
@@ -65,15 +71,26 @@ public:
 	FString FindEquipType(int ID) const;
 
 	/**
+	 * Find If Item is stockable.
+	 */
+	bool FindStackable(int ID) const;
+
+	/**
 	 * Get default icon
 	 */
 	bool GetDefaultIconPath(FString Type, FString& IconPath) const;
 
+	/**
+	 * Get all consumable effects
+	 */
+	FCNConsumableEffect GetConsumableEffect(int ID) const;
+
 protected:
 	
 	bool IsIdValid(int ID) const;
-
+	
 private:
 
 	FSQLiteDatabase& Db;
+	FString ConsumableEffectTable;
 };

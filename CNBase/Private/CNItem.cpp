@@ -21,7 +21,7 @@
 
 UCNItem::UCNItem()
 {	
-	Amount = 1;
+	// Amount = 1;
 	TestInt = 10;
 	ItemStore = new FCNItemStore();
 }
@@ -35,7 +35,7 @@ void UCNItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(UCNItem, Amount, ELifetimeCondition::COND_OwnerOnly);
+	// DOREPLIFETIME_CONDITION(UCNItem, Amount, ELifetimeCondition::COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UCNItem, CurBaseAttri, ELifetimeCondition::COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UCNItem, Name, ELifetimeCondition::COND_OwnerOnly);
 	// DOREPLIFETIME_CONDITION(UCNItem, Level, ELifetimeCondition::COND_OwnerOnly);
@@ -66,7 +66,7 @@ FString UCNItem::GetIconPath() const
 
 bool UCNItem::GetStackable() const
 {
-	return false;
+	return ItemStore->FindStackable(CurBaseAttri.Index.ID);
 }
 
 FText UCNItem::GetDescription() const
@@ -100,11 +100,16 @@ FString UCNItem::GetBasicName() const
 FText UCNItem::GetName() const
 {
 	auto Key1 = UCNTypeLib::GetLevelSTKey((ECNObjectLevel)CurBaseAttri.Index.Level);
-	auto Key2 = ItemStore->FindName(CurBaseAttri.Index.ID);
+	auto Key2 = ItemStore->FindDisplayName(CurBaseAttri.Index.ID);
 	auto t1 = FText::FromStringTable(GItemSTable, Key1.ToString());
 	auto t2 = FText::FromStringTable(GItemSTable, Key2);
 	auto s = t1.ToString() + TEXT(" ") + t2.ToString();
 	return FText::FromString(s);
+}
+
+FCNConsumableEffect UCNItem::GetConsumableEffect() const
+{
+	return ItemStore->GetConsumableEffect(CurBaseAttri.Index.ID);
 }
 
 #pragma optimize( "", on )

@@ -12,13 +12,17 @@
 
 ACNGameState::ACNGameState()
 {
-	UE_LOG(CNLog, Verbose, TEXT("Construct ACNGameState"));
+	UE_LOG(CNLog, Log, TEXT("Construct ACNGameState"));
+	// Here using object function as we don't call SpawnActor, and UPROPERTY() is needed.
 	ObjectFactory = CreateDefaultSubobject<ACNObjectFactory>("ObjectFactory");
+	if (!ObjectFactory || !ObjectFactory->IsValidLowLevel()) {
+		UE_LOG(CNLog, Error, TEXT("Create ObjectFactory failed"));
+	}
 }
 
 ACNGameState::~ACNGameState()
 {
-	UE_LOG(CNLog, Verbose, TEXT("Destruct ACNGameState"));
+	UE_LOG(CNLog, Log, TEXT("Destruct ACNGameState"));
 }
 
 void ACNGameState::PreInitializeComponents()

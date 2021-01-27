@@ -10,24 +10,9 @@
 class UCNItem;
 
 /**
- * FOnAddOrRemoveItemSignature type
- */
-UENUM(BlueprintType)
-enum class EItemChangeNumEvent : uint8
-{
-	ADD,
-	REMOVE
-};
-
-/**
  *
  */
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAddOrRemoveItemSignature, bool, Add, UCNItem*, Item);
-
-/**
- *
- */
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(BlueprintType, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class CNBASE_API UCNInventoryComponent : public USceneComponent
 {
 	GENERATED_BODY()
@@ -40,10 +25,49 @@ public:
 
 	bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
 
+	bool IsInventoryFull();
+
+	/**
+	 * For server initialization
+	 */
 	void LoadItems();
 
-	UPROPERTY(BlueprintAssignable, Category = Events)
-	FOnAddOrRemoveItemSignature OnAddOrRemoveItem;
+	/**
+	 * Test purpose
+	 */
+	void TestAddConsumableToInitData();
+	void TestAddEquipmentsToInitData();
+	
+	/**
+	 * Load Initialization items
+	 */
+	void LoadInitData();
+
+	/**
+	 * @param if found pos contain position value
+	 * @return true if found
+	 */
+	bool FindItem(const FCNItemInfo& ItemInfo, int& Pos);
+
+	const FCNItemInfo& GetItem(int Pos) const;
+
+	virtual void SetItem(int Pos, const FCNItemInfo& Info);
+
+	virtual void ClearItem(int Pos);
+	
+	int GetItemsCount();
+
+	/**
+	 * @param Pos store valid position
+	 * @return true if successfully find an empty position, 
+	 * false for no empty position.
+	 */
+	bool GetEmptyPos(int& Pos);
+
+	// Amount ceiling
+	int GetItemMaxAmount() { return ItemMaxAmount; }
+
+	const TArray<FCNItemInfo>& GetItems() const { return ItemInfos; }
 
 protected:
 	// Called when the game starts
@@ -51,20 +75,7 @@ protected:
 
 	virtual void InitializeComponent() override;
 
-	UFUNCTION(Client, Reliable)
-	void ClientSetItemNum(UCNItem* Item, int Num);
-
-	UFUNCTION(Client, Reliable)
-	void ClientRemoveItem(UCNItem* Item);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerChangeItemNum(UCNItem* Item, int Num);
-
-	UFUNCTION(BlueprintCallable)
 	void ChangeItemNum(UCNItem* Item, int Num);
-
-	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
-	virtual void ServerUseItem(int Slot);
 
 public:	
 	// Called every frame
@@ -77,7 +88,7 @@ protected:
 	/**
 	 * Replicate, initialized on server
 	 */
-	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Items")
+	UPROPERTY(BlueprintReadOnly, Category = "Items")
 	TArray<FCNItemInfo> ItemInfos;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")

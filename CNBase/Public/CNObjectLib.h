@@ -7,6 +7,7 @@
 #include "CNObjectLib.generated.h"
 
 class UTexture2D;
+class UStaticMesh;
 
 /**
  * 
@@ -29,4 +30,13 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = ObjectLib)
 	static UTexture2D* LoadTexture2DFromPath(const FString& Path);
+
+	UFUNCTION(BlueprintCallable, Category = ObjectLib)
+	static UStaticMesh* LoadStaticMeshFromPath(const FString& Path);
+
+	/**
+	 * Only enumerate .uasset files
+	 */
+	UFUNCTION(BlueprintCallable, Category = ObjectLib)
+	static TArray<UStaticMesh*> GetDirectoryStaticMesh(FString ContentRelativePath);
 };

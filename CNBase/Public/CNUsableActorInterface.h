@@ -19,18 +19,18 @@ class ICNUsableActorInterface
 	GENERATED_BODY()
 public:
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = Usable)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Usable)
 	bool IsUsable();
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = Usable)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Usable)
 	bool Use(APlayerController* PlayerController);
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = Usable)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Usable)
 	FText GetUseActionText();
 	
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = Usable)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Usable)
 	bool BeginOutlineFocus();
 
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = Usable)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Usable)
 	bool EndOutlineFocus();
 };

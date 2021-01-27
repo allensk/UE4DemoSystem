@@ -32,4 +32,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = ObjectFactoryLib)
 	static UCNCha* FindCharacterByID(AGameStateBase* State, FCNObjectIndex Index);
+
+	UFUNCTION(BlueprintCallable, Category = ObjectFactoryLib)
+	static bool IsItemInfoValid(const FCNItemInfo& ItemInfo);
 };

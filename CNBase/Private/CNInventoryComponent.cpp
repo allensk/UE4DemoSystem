@@ -6,6 +6,7 @@
 #include "Net/DataChannel.h"
 #include "Engine/ActorChannel.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetArrayLibrary.h"
 
 #include "CNGameLog.h"
 #include "CNItem.h"
@@ -54,11 +55,6 @@ bool UCNInventoryComponent::ReplicateSubobjects(UActorChannel * Channel, FOutBun
 void UCNInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	if (GetOwnerRole() == ROLE_Authority) {
-		LoadItems();
-	}
 }
 
 
@@ -71,10 +67,28 @@ void UCNInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
 	// ...
 }
 
+void UCNInventoryComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+
+	UE_LOG(CNLog, Verbose, TEXT("UCNInventoryComponent::InitializeComponent"));
+}
+
+bool UCNInventoryComponent::IsInventoryFull()
+{
+	return false;
+}
+
 void UCNInventoryComponent::LoadItems()
 {
-	for (auto& x : InitDatas) {
+	TestAddConsumableToInitData();
+	TestAddEquipmentsToInitData();
+	LoadInitData();
+}
 
+void UCNInventoryComponent::LoadInitData()
+{
+	for (auto& x : InitDatas) {
 		auto Item = UCNObjectFactoryLib::FindItemByName(UGameplayStatics::GetGameState(GetWorld()),
 			x.BaseName, (int)x.Level);
 		if (Item) {
@@ -88,98 +102,96 @@ void UCNInventoryComponent::LoadItems()
 				*x.BaseName);
 		}
 	}
+
+	// Clear
+	InitDatas.Empty();
 }
 
-void UCNInventoryComponent::InitializeComponent()
+void UCNInventoryComponent::TestAddConsumableToInitData()
 {
-	Super::InitializeComponent();
-
-	UE_LOG(CNLog, Verbose, TEXT("UCNInventoryComponent::InitializeComponent"));
+	FCNObjectInitData Data{ TEXT("Black Bread") };
+	InitDatas.Add(Data);
+	Data.BaseName = TEXT("Chicken Leg");
+	InitDatas.Add(Data);
+	Data.BaseName = TEXT("Chicken Leg Set");
+	InitDatas.Add(Data);
+	Data.BaseName = TEXT("Dark Egg");
+	InitDatas.Add(Data);
+	Data.BaseName = TEXT("White Egg");
+	InitDatas.Add(Data);
+	Data.BaseName = TEXT("Sang");
+	InitDatas.Add(Data);
+	Data.BaseName = TEXT("Sausage");
+	InitDatas.Add(Data);
 }
 
-void UCNInventoryComponent::ClientSetItemNum_Implementation(UCNItem * Item, int Num)
+void UCNInventoryComponent::TestAddEquipmentsToInitData()
 {
-	//for (auto& Ele : Items) {
-	//	if (Item == Ele) {
-	//		Ele->SetAmount(Num);
-	//		break;
-	//	}
-	//}
+	FCNObjectInitData Data{ TEXT("Sword_1") };
+	InitDatas.Add(Data);
+	Data.BaseName = TEXT("Shield_1");
+	InitDatas.Add(Data);
+	Data.BaseName = TEXT("Sword_2");
+	InitDatas.Add(Data);
+	Data.BaseName = TEXT("Shield_2");
+	InitDatas.Add(Data);
 }
 
-void UCNInventoryComponent::ClientRemoveItem_Implementation(UCNItem * Item)
+bool UCNInventoryComponent::FindItem(const FCNItemInfo& ItemInfo, int& Pos)
 {
-	//for (auto& Ele : Items) {
-	//	if (Item == Ele) {
-	//		Items.RemoveSingle(Item);
-	//		OnAddOrRemoveItem.Broadcast(false, Item);
-	//		break;
-	//	}
-	//}
+	if (ItemInfos.Find(ItemInfo, Pos)) {
+		return true;
+	}
 
-	OnAddOrRemoveItem.Broadcast(false, Item);
+	return false;
 }
 
-void UCNInventoryComponent::ServerChangeItemNum_Implementation(UCNItem* Item, int Num)
+const FCNItemInfo& UCNInventoryComponent::GetItem(int Pos) const
 {
-	//// Unchange and return
-	//if (!Num) {
-	//	return;
-	//}
+	if (!ItemInfos.IsValidIndex(Pos)) {
+		static FCNItemInfo Info;
+		return Info;
+	}
 
-	//bool bInInventory = false;
-	//for (auto& Ele : Items) {
-	//	if (Item == Ele) {
-	//		bInInventory = true;
-	//		break;
-	//	}
-	//}
-
-	//int Amount = Item->GetAmount();
-	//if (bInInventory) {
-	//	// Out scope
-	//	if (Num + Amount >= ItemMaxAmount) {
-	//		Item->SetAmount(ItemMaxAmount);
-	//	}
-	//	// In scope
-	//	else if (Num + Amount > 0) {
-	//		Item->SetAmount(Num + Amount);
-	//	}
-
-	//	// Num reach 0, remove Item
-	//	// Let it be auto-destroyed
-	//	else {
-	//		// Clear UI item ref
-	//		ClientRemoveItem(Item);
-	//		// Clear item reference
-	//		Items.RemoveSingle(Item);
-	//	}
-	//	
-	//	// GetOwner()->GetNetDriver()->FlushActorDormancy()
-	//	// ClientSetItemNum(Item, Item->GetAmount());
-	//	
-	//}
-	//// Create Item
-	////else {
-	////	// Out scope
-	////	if (Num + Amount > ItemMaxAmount) {
-	////		Amount = ItemMaxAmount;
-	////	}
-
-	////	ensure(Num + Amount > 0);
-
-	////	// 
-	////	auto Base = Item->GetCurBaseAttri();
-	////	auto p = NewObject<UCNItem>();
-	////	p->SetBasicData(Item->GetBasicName(), Item->GetLevel());
-	////	p->SetAmount(Amount);
-	////	Items.Add(p);
-	////}
+	return ItemInfos[Pos];
 }
 
-bool UCNInventoryComponent::ServerChangeItemNum_Validate(UCNItem* Item, int Num)
+void UCNInventoryComponent::SetItem(int Pos, const FCNItemInfo& Info)
+{	
+	// Refer to KismetArrayLibrary GenArraySet
+	if (!ItemInfos.IsValidIndex(Pos)  && (Pos >= 0)) {
+		ItemInfos.SetNumZeroed(Pos + 1, true);
+	}
+
+	if (ItemInfos.IsValidIndex(Pos)) {
+		ItemInfos[Pos] = Info;
+	}
+}
+
+void UCNInventoryComponent::ClearItem(int Pos)
 {
-	return true;
+	if (ItemInfos.IsValidIndex(Pos)) {
+		ItemInfos[Pos] = FCNItemInfo();
+	}
+}
+
+int UCNInventoryComponent::GetItemsCount()
+{
+	return ItemInfos.Num();
+}
+
+bool UCNInventoryComponent::GetEmptyPos(int& Pos)
+{
+	for (int i = 0; i < ItemInfos.Num(); ++i) {
+		
+		// Invalid Item
+		if (!ItemInfos[i].Index.IsValid()) {
+			Pos = i;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void UCNInventoryComponent::ChangeItemNum(UCNItem* Item, int Num)
@@ -188,24 +200,4 @@ void UCNInventoryComponent::ChangeItemNum(UCNItem* Item, int Num)
 	if (!Item || !Num) {
 		return;
 	}
-
-	// Bad parameter
-	if (Item->GetAmount() + Num < 0) {
-		return;
-	}
-
-	ensure(Item->GetAmount() + Num >= 0);
-
-	ServerChangeItemNum(Item, Num);
-}
-
-void UCNInventoryComponent::ServerUseItem_Implementation(int Slot)
-{
-	return;
-}
-
-
-bool UCNInventoryComponent::ServerUseItem_Validate(int Slot)
-{
-	return true;
 }

@@ -66,6 +66,7 @@ FCNItemStore::FCNItemStore() :
 	Db(*GetDbRef())
 {
 	TableName = TEXT("ItemBaseStore");
+	ConsumableEffectTable = TEXT("ConsumableEffectQuick");
 }
 
 FCNItemStore::~FCNItemStore()
@@ -123,6 +124,13 @@ FString FCNItemStore::FindName(int ID) const
 {
 	FString Ret;
 	GetValueOfID(ID, TEXT("name"), Ret);
+	return Ret;
+}
+
+FString FCNItemStore::FindDisplayName(int ID) const
+{
+	FString Ret;
+	GetValueOfID(ID, TEXT("DisplayName"), Ret);
 	return Ret;
 }
 
@@ -184,6 +192,13 @@ FString FCNItemStore::FindEquipType(int ID) const
 	return Ret;
 }
 
+bool FCNItemStore::FindStackable(int ID) const
+{
+	int Stackable = 0;
+	GetValueOfID(ID, TEXT("Stackable"), Stackable);
+	return Stackable > 0 ? true : false;
+}
+
 bool FCNItemStore::GetDefaultIconPath(FString Type, FString& IconPath) const
 {
 	FString StateString = FString::Printf(TEXT("SELECT IconPath FROM DefaultIcons WHERE name = '%s';"), *Type);
@@ -208,4 +223,23 @@ FString FCNItemStore::FindIconPath(int ID) const
 	}
 	
 	return Ret;
+}
+
+FCNConsumableEffect FCNItemStore::GetConsumableEffect(int ID) const
+{
+	FCNConsumableEffect Effect;
+
+	FString StateString = FString::Printf(TEXT("SELECT HealthRecoveryPoint From %s WHERE id = %d;"),
+		*ConsumableEffectTable, ID);
+
+	FSQLitePreparedStatement State(Db, *StateString);
+	if (!State.IsValid()) {
+		return Effect;
+	}
+
+	if (State.Step() == ESQLitePreparedStatementStepResult::Row) {
+		State.GetColumnValueByName(TEXT("HealthRecoveryPoint"), Effect.HealthRecoveryPoint);
+	}
+
+	return Effect;
 }

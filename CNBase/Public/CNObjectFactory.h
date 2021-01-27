@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CNAttriBase.h"
+#include "Runtime/Core/Public/HAL/ThreadingBase.h"
 #include "CNObjectFactory.generated.h"
 
 class UCNItem;
@@ -33,5 +34,8 @@ public:
 
 private:
 	
+	UPROPERTY()
 	TMap<FCNObjectIndex, UObject*> Objects;
+
+	FCriticalSection Mutex;
 };

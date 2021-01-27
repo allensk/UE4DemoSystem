@@ -73,15 +73,11 @@ public:
 
 	const FCNItemBase& GetCurBaseAttri() const { return CurBaseAttri; }
 
-	int GetAmount() const { return Amount; }
-	void SetAmount(int Num) { Amount = Num; }
+	FCNConsumableEffect GetConsumableEffect() const;
 
 protected:
 
 	FCNItemBase BaseAttri;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category = "Custom")
-	int	Amount;
 
 	UPROPERTY(BlueprintReadOnly, Replicated, Category = "Custom")
 	FCNItemBase CurBaseAttri;

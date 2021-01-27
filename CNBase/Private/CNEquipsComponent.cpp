@@ -7,6 +7,7 @@
 
 #include "CNItem.h"
 #include "CNObjectFactoryLib.h"
+#include "..\Public\CNEquipsComponent.h"
 
 // Sets default values for this component's properties
 UCNEquipsComponent::UCNEquipsComponent()
@@ -17,7 +18,6 @@ UCNEquipsComponent::UCNEquipsComponent()
 	// ...
 }
 
-
 // Called when the game starts
 void UCNEquipsComponent::BeginPlay()
 {
@@ -27,6 +27,10 @@ void UCNEquipsComponent::BeginPlay()
 	
 }
 
+void UCNEquipsComponent::InitializeComponent()
+{
+	Super::InitializeComponent();
+}
 
 // Called every frame
 void UCNEquipsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -36,58 +40,35 @@ void UCNEquipsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	// ...
 }
 
-void UCNEquipsComponent::Text()
+const FCNItemInfo& UCNEquipsComponent::GetEquipment(int EquipType)
 {
+	return GetItem(EquipTypeToArrayIndex(EquipType));
 }
 
-//bool UCNEquipsComponent::IsItemEquipped(int Slot)
-//{
-//	EquipInfos.RangeCheck
-//
-//	/*for (auto& Elem : EquippedItems) {
-//		if (Elem.Value == Item) {
-//			return true;
-//		}
-//	}*/
-//
-//	return false;
-//}
-
-//void UCNEquipsComponent::ClientEquipItem_Implementation(UCNItem* Item, bool bEquip)
-//{
-//	OnEquipOrUnEquipItem.Broadcast(bEquip, Item);
-//}
-
-void UCNEquipsComponent::ServerEquipItem_Implementation(int Slot)
+void UCNEquipsComponent::SetItem(int Pos, const FCNItemInfo & Info)
 {
-	auto& Info = ItemInfos[Slot];
-	auto* Item = UCNObjectFactoryLib::FindItemByID(UGameplayStatics::GetGameState(GetWorld()),
-		Info.Index);
-	if (Item) {
-		if (Item->GetCurBaseAttri().ItemType == ECNItemType::EQUIPMENT) {
-			ItemInfos.RemoveAt(Slot, 1, false);
-			EquipInfos.Insert(Info, (int)Item->GetCurBaseAttri().EquipmentType);
-		}
-		else {
-			
-		}
-	}
+	Super::SetItem(Pos, Info);
 }
 
-bool UCNEquipsComponent::ServerEquipItem_Validate(int Slot)
+void UCNEquipsComponent::ClearItem(int Pos)
 {
-
-	return true;
+	Super::ClearItem(Pos);
 }
 
-//void UCNEquipsComponent::EquipItem(UCNItem* SlotItemAddress, bool bEquip)
-//{
-//	ServerEquipItem(SlotItemAddress, bEquip);
-//
-//	//SlotItemAddress->name
-//}
-
-void UCNEquipsComponent::InitializeComponent()
+int UCNEquipsComponent::EquipTypeToArrayIndex(int EquipType)
 {
-	Super::InitializeComponent();
+	return EquipType - 1;
 }
+
+/*switch (Type) {
+case ECNEquipmentType::HEAD:
+	break;
+case ECNEquipmentType::BODY:
+	break;
+case ECNEquipmentType::BOOT:
+	break;
+case ECNEquipmentType::WEAPON:
+	break;
+case ECNEquipmentType::ARTIFACT:
+	break;
+}*/

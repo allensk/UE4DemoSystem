@@ -6,6 +6,8 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/GameStateBase.h"
+#include "CNItem.h"
+#include "CNCha.h"
 
 #include "CNGameState.h"
 #include "CNObjectFactory.h"
@@ -24,8 +26,16 @@ UCNItem* UCNObjectFactoryLib::FindItemByID(AGameStateBase* State, FCNObjectIndex
 {
 	static ACNObjectFactory* TmpFactory = nullptr;
 	
+	//static AGameStateBase* TmpState = nullptr;
+	//// Every time reassign pointer (State is a long time object, one state for one game)
+	//if (!TmpState || TmpState != State) {
+	//}
+
 	// Assign TmpGameState if it is invalid
-	if (!(TmpFactory && TmpFactory->IsValidLowLevel()) && State) {
+	if (State &&
+		(!TmpFactory ||
+		(TmpFactory && !TmpFactory->IsValidLowLevel()))
+		) {
 		auto CNState = Cast<ACNGameState>(State);
 		if (CNState) {
 			auto Factory = CNState->GetObjectFactory();
@@ -37,6 +47,9 @@ UCNItem* UCNObjectFactoryLib::FindItemByID(AGameStateBase* State, FCNObjectIndex
 
 	// 
 	if (TmpFactory && TmpFactory->IsValidLowLevel()) {
+
+		ensure(TmpFactory);
+
 		return TmpFactory->FindItem(Index);
 	}
 	
@@ -56,6 +69,11 @@ UCNItem* UCNObjectFactoryLib::FindItemByName(AGameStateBase* State, FString Name
 UCNCha* UCNObjectFactoryLib::FindCharacterByID(AGameStateBase* State, FCNObjectIndex Index)
 {
 	return nullptr;
+}
+
+bool UCNObjectFactoryLib::IsItemInfoValid(const FCNItemInfo& ItemInfo)
+{
+	return ItemInfo.Index.IsValid();
 }
 
 
